@@ -2,7 +2,7 @@
 
 var mysql      = require('mysql');
 var crypto     = require('crypto');
-var jwt = require('jsonwebtoken');
+
 var connection;
 if (!connection) {
   connection = mysql.createConnection({
@@ -11,12 +11,6 @@ if (!connection) {
     password : 'root',
     database : 'mean'
   }); 
-}
-
-function setPassword(password) {
-  var salt = crypto.randomBytes(16).toString('hex');
-  var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
-  return hash;
 }
 
 module.exports = {
@@ -29,7 +23,7 @@ module.exports = {
   addNewUser: function (options, callback) {
     var sql = "INSERT INTO users (name, email, password)" +
       " VALUES ('" + options.name + "', '" + options.email + 
-      "', '" + setPassword(options.password) + "')";
+      "', '" + options.password + "')";
     connection.query(sql, function(err, rows, fields) {
       if (err) throw err;
       

@@ -3,8 +3,21 @@
 var express = require('express');
 var router = express.Router();
 var Post = require('../models/Posts');
+var auth = require('../middleware/auth').islogged;
+
+function sss(req, res, next) {
+    var isLogged = req.isAuthenticated();
+    if (isLogged) {
+        next();
+    }
+    else {
+      res.json({error: 'You are not authenticated'});
+    }
+}
+// router.post('/*', auth);
 
 router.get('/', function(req, response, next) {
+  console.log(req.isAuthenticated());
   var sql = "SELECT * FROM posts";
   var res;
   Post.query("SELECT * FROM posts", function(result) {
@@ -14,6 +27,7 @@ router.get('/', function(req, response, next) {
 });
 
 router.get('/:id', function(req, response, next) {
+  console.log(req.isAuthenticated());
   var id = Number(req.params.id), post, comments;
   if (!Number.isInteger(Number(id))) {
     throw "Invalid parameter";
@@ -41,14 +55,10 @@ router.get('/:id', function(req, response, next) {
       response.json(post);
     });
   });
-  // Post.query(sql, function(result) {
-  //   res = result;
-  //   response.json(res[0]);
-  // });
 });
 
 
-router.post('/', function(req, res, next) {
+router.post('/', sss, function(req, res, next) {
   console.log(req.body);
   var sql = "INSERT INTO posts (`title`, `link`) VALUES ('" + req.body.title + "', '" + req.body.link + "');", 
     idNewRecord, post;
